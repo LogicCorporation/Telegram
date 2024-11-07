@@ -20,6 +20,7 @@ func SendMessage(token string, chatID string, text string, topicID string) (erro
 		"message_thread_id":        topicID,
 		"parse_mode":               "html",
 	}
+	kyb, err := json.Marshal(map[string]interface{}{})
 	if err != nil {
 		return types.Error{
 			Module:      "json",
