@@ -98,25 +98,36 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 }
 
 func createPushText(event *types.PushEvent) string {
-	text := fmt.Sprintf("<b>🔨 %d New commit to</b> <a href='%s'>%s</a>[<code>%s</code>]\n\n",
-		len(event.Commits),
-		event.Repo.HTMLURL,
-		event.Repo.FullName,
-		strings.Replace(event.Ref, "refs/heads/", "", 1),
-	)
+    // Extrair apenas o nome do repositório
+    repoFullName := event.Repo.FullName // Exemplo: "LogicCorporation/ProxyChecker-v2"
+    repoParts := strings.Split(repoFullName, "/")
+    repoName := repoParts[len(repoParts)-1] // "ProxyChecker-v2"
+    repoName = strings.ReplaceAll(repoName, "-", " ") // "ProxyChecker v2"
 
-	for _, commit := range event.Commits {
-		text += fmt.Sprintf("• <a href='%s'>%s</a> - %s by <a href='%s'>%s</a>\n",
-			commit.Url,
-			commit.Id[:7],
-			html.EscapeString(commit.Message),
-			commit.Author.HTMLURL,
-			commit.Author.Name,
-		)
-	}
+    // Cabeçalho com emoji de atualização
+    header := fmt.Sprintf("<b>🚀 %d New Commit(s) to</b> <a href='%s'>%s</a> [<code>%s</code>]\n\n",
+        len(event.Commits),
+        event.Repo.HTMLURL,
+        repoName,
+        strings.Replace(event.Ref, "refs/heads/", "", 1),
+    )
 
-	return text
+    // Seção de commits com emoji de pacote
+    commitsText := "<b>📦 Commits:</b>\n"
+    for _, commit := range event.Commits {
+        commitsText += fmt.Sprintf("• <a href='%s'>%s</a> - %s\n",
+            commit.Url,
+            commit.Id[:7],
+            html.EscapeString(commit.Message),
+        )
+    }
+
+    // Rodapé com emoji de link
+    footer := "\n🔗 <a href='https://your-link-for-details.com'>View Details</a>"
+
+    return header + commitsText + footer
 }
+
 
 func createForkText(event *types.ForkEvent) string {
 	return fmt.Sprintf("🍴 <a href='%s'>%s</a> forked <a href='%s'>%s</a> → <a href='%s'>%s</a>",
@@ -206,3 +217,14 @@ func createStarText(event *types.WatchEvent) string {
 		event.Repo.FullName,
 	)
 }
+
+// Helper function to extract the first name from a full name
+func getFirstName(fullName string) string {
+    // Split the full name by spaces
+    parts := strings.Fields(fullName)
+    if len(parts) > 0 {
+        return parts[0]
+    }
+    return fullName // Return as is if splitting fails
+}
+
