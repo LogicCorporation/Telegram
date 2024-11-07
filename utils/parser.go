@@ -97,35 +97,40 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 	return text, markupText, markupUrl, nil
 }
 
-func createPushText(event *types.PushEvent) string {
-    // Extrair apenas o nome do repositório
-    repoFullName := event.Repo.FullName // Exemplo: "LogicCorporation/ProxyChecker-v2"
+func createPushText(event *PushEvent) string {
+    // 1. Extrair e formatar o nome do repositório
+    repoFullName := event.GetRepo().GetFullName() // Exemplo: "LogicCorporation/ProxyChecker-v2"
     repoParts := strings.Split(repoFullName, "/")
-    repoName := repoParts[len(repoParts)-1] // "ProxyChecker-v2"
-    repoName = strings.ReplaceAll(repoName, "-", " ") // "ProxyChecker v2"
+    repoName := repoParts[len(repoParts)-1]               // "ProxyChecker-v2"
+    repoName = strings.ReplaceAll(repoName, "-", " ")      // "ProxyChecker v2"
 
-    // Cabeçalho com emoji de atualização
-    header := fmt.Sprintf("<b>🚀 %d New Commit(s) to</b> <a href='%s'>%s</a> [<code>%s</code>]\n\n",
+    // 2. Remover a versão se necessário (opcional)
+    // Por exemplo, remover "-v2" para ficar apenas "ProxyChecker"
+    // repoName = strings.Split(repoName, " v")[0] // Descomente se quiser remover a versão
+
+    // 3. Obter a data de publicação no formato [DD/MM/AA]
+    pubDate := event.GetCreatedAt().Time.Format("02/01/06") // "DD/MM/AA"
+
+    // 4. Cabeçalho com emoji e formatação em negrito e sublinhado
+    header := fmt.Sprintf("🚀 <b><u>%d New Update(s) to %s</u></b>\n\n",
         len(event.Commits),
-        event.Repo.HTMLURL,
         repoName,
-        strings.Replace(event.Ref, "refs/heads/", "", 1),
     )
 
-    // Seção de commits com emoji de pacote
-    commitsText := "<b>📦 Commits:</b>\n"
+    // 5. Seção de Atualizações com marcadores
+    updatesText := "<b><u>📌 Updates:</u></b>\n"
     for _, commit := range event.Commits {
-        commitsText += fmt.Sprintf("• <a href='%s'>%s</a> - %s\n",
-            commit.Url,
-            commit.Id[:7],
-            html.EscapeString(commit.Message),
-        )
+        // Escapar caracteres HTML nas mensagens de commit
+        commitMessage := html.EscapeString(commit.GetMessage())
+        // Adicionar marcador e mensagem do commit
+        updatesText += fmt.Sprintf("• %s\n", commitMessage)
     }
 
-    // Rodapé com emoji de link
-    footer := "\n🔗 <a href='https://your-link-for-details.com'>View Details</a>"
+    // 6. Rodapé com agradecimento e data
+    footer := fmt.Sprintf("\nSpecial thanks to accompany, stay tuned for more. [ %s ]", pubDate)
 
-    return header + commitsText + footer
+    // Combinar todas as partes
+    return header + updatesText + footer
 }
 
 
