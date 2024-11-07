@@ -109,17 +109,18 @@ func createPushText(event *types.PushEvent) string {
     pubDate := time.Now().Format("02/01/06")
 
     // 3. Create the header with emoji, bold, and underline
-    header := fmt.Sprintf("🚀 <b><u>%d New Update(s) to %s</u></b>\n\n",
+    header := fmt.Sprintf("🚀 <b>%d New Update(s) to <u>%s</u></b>\n\n",
         len(event.Commits),
         repoName,
     )
 
     // 4. Create the updates section with bold and underline for "📌 Updates:"
-    updatesText := "<b><u>📌 Updates:</u></b>\n"
+    updatesText := "<blockquote><b><u>📌 Updates:</u></b>\n"
     for _, commit := range event.Commits {
         commitMessage := html.EscapeString(commit.Message)
         updatesText += fmt.Sprintf("• %s\n", commitMessage)
     }
+    updatesText += "</blockquote>"
 
     // 5. Create the footer with a thank you message and publication date
     footer := fmt.Sprintf("\nSpecial thanks to accompany, stay tuned for more. [ %s ]", pubDate)
