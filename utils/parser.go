@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func CreateContents(meta *types.Metadata) (text string, markupText string, markupUrl string, err error) {
+func CreateContents(meta *types.Metadata) (text string, err error) {
 	event, _ := meta.ParseEvent()
 	switch meta.EventName {
 	case "fork":
@@ -17,8 +17,6 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 		// No Activity Types
 
 		text = createForkText(event)
-		markupText = fmt.Sprintf("Total Forks: %d", event.Repo.ForksCount)
-		markupUrl = event.Repo.HTMLURL + "/network/members"
 	case "issue_comment":
 		event := event.(*types.IssueCommentEvent)
 
@@ -28,8 +26,6 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 		}
 
 		text = createIssueCommentText(event)
-		markupText = "Open Comment"
-		markupUrl = event.Comment.HTMLURL
 	case "issues":
 		event := event.(*types.IssuesEvent)
 
@@ -41,8 +37,6 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 		}
 
 		text = createIssuesText(event)
-		markupText = "Open Issue"
-		markupUrl = event.Issue.HTMLURL
 	case "pull_request":
 		event := event.(*types.PullRequestEvent)
 
@@ -54,8 +48,6 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 		}
 
 		text = createPullRequestText(event)
-		markupText = "Open Pull Request"
-		markupUrl = event.PullRequest.HTMLURL
 	case "pull_request_review_comment":
 		event := event.(*types.PullRequestReviewCommentEvent)
 
@@ -65,14 +57,10 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 		}
 
 		text = createPullRequestReviewCommentText(event)
-		markupText = "Open Comment"
-		markupUrl = event.Comment.HTMLURL
 	case "push":
 		event := event.(*types.PushEvent)
 		// No Activity Types
 		text = createPushText(event)
-		markupText = "Open Changes"
-		markupUrl = event.Compare
 	case "release":
 		event := event.(*types.ReleaseEvent)
 		if !Contains([]string{"published", "released"}, event.Action) {
@@ -81,8 +69,6 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 		}
 
 		text = createReleaseText(event)
-		markupText = "🌐"
-		markupUrl = event.Release.HTMLURL
 	case "watch":
 		event := event.(*types.WatchEvent)
 
@@ -92,10 +78,8 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 		}
 
 		text = createStarText(event)
-		markupText = fmt.Sprintf("✨ Total stars: %d", event.Repo.StargazersCount)
-		markupUrl = event.Repo.HTMLURL + "/stargazers"
 	}
-	return text, markupText, markupUrl, nil
+	return text, nil
 }
 
 func createPushText(event *types.PushEvent) string {
