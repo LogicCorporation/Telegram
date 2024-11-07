@@ -18,11 +18,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	text, markupText, markupUrl, err := utils.CreateContents(gitEvent)
+	text, err := utils.CreateContents(gitEvent)
 	if err != nil {
 		panic(err)
 	}
-	error := utils.SendMessage(tg_token, chatID, text, markupText, markupUrl, topicID)
+	error := utils.SendMessage(tg_token, chatID, text, topicID)
 	if error.Description != "" {
 		panic(error.String())
 	}
