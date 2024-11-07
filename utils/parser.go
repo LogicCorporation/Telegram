@@ -98,40 +98,37 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 }
 
 func createPushText(event *PushEvent) string {
-    // 1. Extrair e formatar o nome do repositório
-    repoFullName := event.GetRepo().GetFullName() // Exemplo: "LogicCorporation/ProxyChecker-v2"
+    // 1. Extract and format the repository name
+    repoFullName := event.Repo.FullName // Example: "LogicCorporation/ProxyChecker-v2"
     repoParts := strings.Split(repoFullName, "/")
     repoName := repoParts[len(repoParts)-1]               // "ProxyChecker-v2"
     repoName = strings.ReplaceAll(repoName, "-", " ")      // "ProxyChecker v2"
 
-    // 2. Remover a versão se necessário (opcional)
-    // Por exemplo, remover "-v2" para ficar apenas "ProxyChecker"
-    // repoName = strings.Split(repoName, " v")[0] // Descomente se quiser remover a versão
+    // 2. Get the publication date in [DD/MM/AA] format
+    pubDate := event.CreatedAt.Time.Format("02/01/06") // "DD/MM/AA"
 
-    // 3. Obter a data de publicação no formato [DD/MM/AA]
-    pubDate := event.GetCreatedAt().Time.Format("02/01/06") // "DD/MM/AA"
-
-    // 4. Cabeçalho com emoji e formatação em negrito e sublinhado
+    // 3. Create the header with emoji, bold, and underline
     header := fmt.Sprintf("🚀 <b><u>%d New Update(s) to %s</u></b>\n\n",
         len(event.Commits),
         repoName,
     )
 
-    // 5. Seção de Atualizações com marcadores
+    // 4. Create the updates section with bold and underline for "📌 Updates:"
     updatesText := "<b><u>📌 Updates:</u></b>\n"
     for _, commit := range event.Commits {
-        // Escapar caracteres HTML nas mensagens de commit
-        commitMessage := html.EscapeString(commit.GetMessage())
-        // Adicionar marcador e mensagem do commit
+        commitMessage := html.EscapeString(commit.Message)
         updatesText += fmt.Sprintf("• %s\n", commitMessage)
     }
 
-    // 6. Rodapé com agradecimento e data
+    // 5. Create the footer with a thank you message and publication date
     footer := fmt.Sprintf("\nSpecial thanks to accompany, stay tuned for more. [ %s ]", pubDate)
 
-    // Combinar todas as partes
-    return header + updatesText + footer
+    // 6. Combine all parts into the final message
+    text := header + updatesText + footer
+
+    return text
 }
+
 
 
 func createForkText(event *types.ForkEvent) string {
