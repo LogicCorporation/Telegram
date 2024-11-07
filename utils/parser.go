@@ -97,7 +97,7 @@ func CreateContents(meta *types.Metadata) (text string, markupText string, marku
 	return text, markupText, markupUrl, nil
 }
 
-func createPushText(event *PushEvent) string {
+func createPushText(event *types.PushEvent) string {
     // 1. Extract and format the repository name
     repoFullName := event.Repo.FullName // Example: "LogicCorporation/ProxyChecker-v2"
     repoParts := strings.Split(repoFullName, "/")
