@@ -90,7 +90,7 @@ func createPushText(event *types.PushEvent) string {
     repoName = strings.ReplaceAll(repoName, "-", " ")      // "ProxyChecker v2"
 
     // 2. Get the publication date in [DD/MM/AA] format
-    pubDate := time.Now().Format("02/01/06")
+    pubDate := time.Now().Format("02/01/06 15:04:05")
 
     // 3. Create the header with emoji, bold, and underline
     header := fmt.Sprintf("🚀 <b>%d New Update(s) to <u>%s</u></b>\n\n",
